@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: batman
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-batman}
+      POSTGRES_DB: broke_batman
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U batman -d broke_batman"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://batman:${POSTGRES_PASSWORD:-batman}@db:5432/broke_batman?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      DEMO_ENABLED: ${DEMO_ENABLED:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres-data:

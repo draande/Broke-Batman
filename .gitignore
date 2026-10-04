@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+.postgres/
+*.tsbuildinfo
+.npm-cache/
+next-env.d.ts

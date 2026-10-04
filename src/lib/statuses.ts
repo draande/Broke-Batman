@@ -1,0 +1,17 @@
+export const statuses = [
+  ["saved", "Saved", "saved"],
+  ["preparing", "Preparing", "saved"],
+  ["applied", "Applied", "applied"],
+  ["oa", "OA", "interview"],
+  ["recruiter-screen", "Recruiter Screen", "interview"],
+  ["phone-interview", "Phone Interview", "interview"],
+  ["technical-interview", "Technical Interview", "interview"],
+  ["behavioral-interview", "Behavioral Interview", "interview"],
+  ["onsite", "Onsite", "interview"],
+  ["final-round", "Final Round", "final"],
+  ["offer", "Offer", "offer"],
+  ["accepted", "Accepted", "offer"],
+  ["rejected", "Rejected", "closed"],
+  ["withdrawn", "Withdrawn", "closed"],
+  ["ghosted", "Ghosted", "closed"],
+].map(([id, label, category], order) => ({ id, label, category, order }));

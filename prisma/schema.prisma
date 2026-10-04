@@ -1,0 +1,295 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String                 @id @default(cuid())
+  email           String                 @unique
+  name            String
+  passwordHash    String
+  createdAt       DateTime               @default(now())
+  applications    Application[]
+  sessions        Session[]
+  emailConnection EmailConnection?
+  oauthAttempts   OAuthAttempt[]
+  emailMessages   EmailMessageMetadata[]
+  notifications   Notification[]
+  userSkills      UserSkill[]
+  searchProfile   SearchProfile?
+  syncState       SyncState?
+  preference      UserPreference?
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model UserPreference {
+  userId        String  @id
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyTarget  Int     @default(10)
+  streakEnabled Boolean @default(true)
+  theme         String  @default("dark")
+  timezone      String  @default("America/Los_Angeles")
+}
+
+model Status {
+  id           String        @id
+  label        String        @unique
+  category     String
+  order        Int
+  applications Application[]
+}
+
+model Application {
+  id                     String                     @id @default(cuid())
+  userId                 String
+  user                   User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company                String
+  companyLogo            String?
+  position               String
+  jobPostingURL          String?
+  jobDescription         String                     @default("")
+  location               String                     @default("")
+  workMode               String                     @default("Remote")
+  employmentType         String                     @default("Full-time")
+  salaryMinimum          Float?
+  salaryMaximum          Float?
+  salaryCurrency         String                     @default("USD")
+  datePosted             DateTime?
+  dateApplied            DateTime?
+  applicationDeadline    DateTime?
+  statusId               String                     @default("saved")
+  status                 Status                     @relation(fields: [statusId], references: [id])
+  source                 String                     @default("Direct")
+  experienceRequirements String                     @default("")
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  archivedAt             DateTime?
+  history                ApplicationStatusHistory[]
+  interviews             Interview[]
+  followUps              FollowUp[]
+  contacts               Contact[]
+  notes                  Note[]
+  skills                 ApplicationSkill[]
+  activities             Activity[]
+  emailMessages          EmailMessageMetadata[]
+
+  @@index([userId, archivedAt, createdAt])
+  @@index([userId, statusId])
+  @@index([userId, dateApplied])
+}
+
+model ApplicationStatusHistory {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStatus    String?
+  toStatus      String
+  createdAt     DateTime    @default(now())
+
+  @@index([applicationId, createdAt])
+}
+
+model Interview {
+  id               String      @id @default(cuid())
+  applicationId    String
+  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  type             String
+  startsAt         DateTime
+  timezone         String
+  interviewer      String      @default("")
+  meetingURL       String?
+  notes            String      @default("")
+  preparationNotes String      @default("")
+  outcome          String      @default("Scheduled")
+  createdAt        DateTime    @default(now())
+
+  @@index([applicationId, startsAt])
+}
+
+model FollowUp {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  title         String
+  dueAt         DateTime
+  completedAt   DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([applicationId, dueAt])
+}
+
+model Contact {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  name          String
+  email         String      @default("")
+  role          String      @default("Recruiter")
+  createdAt     DateTime    @default(now())
+
+  @@index([applicationId])
+}
+
+model Note {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  body          String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([applicationId, createdAt])
+}
+
+model Skill {
+  id           String             @id @default(cuid())
+  name         String             @unique
+  applications ApplicationSkill[]
+}
+
+model ApplicationSkill {
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  skillId       String
+  skill         Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  preferred     Boolean     @default(false)
+
+  @@id([applicationId, skillId])
+}
+
+model Activity {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  message       String
+  source        String @default("Manual")
+  sourceEmailId String?
+  confidence    Int?
+  createdAt     DateTime    @default(now())
+
+  @@index([applicationId, createdAt])
+}
+
+model RateLimit {
+  key       String   @id
+  count     Int      @default(1)
+  expiresAt DateTime
+}
+
+model EmailConnection {
+  userId       String    @id
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode         String    @default("google")
+  account      String    @default("")
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  connectedAt  DateTime  @default(now())
+  state        String    @default("connected")
+}
+
+model OAuthAttempt {
+  state     String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifier  String
+  expiresAt DateTime
+}
+
+model EmailMessageMetadata {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  externalId    String
+  threadId      String
+  subject       String
+  sender        String
+  snippet       String
+  receivedAt    DateTime
+  category      String
+  company       String            @default("")
+  role          String            @default("")
+  confidence    Int
+  reasons       Json
+  applicationId String?
+  application   Application?      @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  demo          Boolean           @default(false)
+  detectedAt    DateTime          @default(now())
+  actions       SuggestedAction[]
+
+  @@unique([userId, externalId])
+  @@index([userId, receivedAt])
+}
+
+model SuggestedAction {
+  id        String               @id @default(cuid())
+  messageId String
+  message   EmailMessageMetadata @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  kind      String
+  payload   Json
+  decision  String               @default("pending")
+  decidedAt DateTime?
+  resultId  String?
+
+  @@unique([messageId, kind])
+  @@index([decision])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key         String
+  title       String
+  href        String
+  readAt      DateTime?
+  dismissedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, key])
+  @@index([userId, createdAt])
+}
+
+model UserSkill {
+  id          String @id @default(cuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  proficiency String
+
+  @@unique([userId, name])
+}
+
+model SearchProfile {
+  userId          String @id
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experienceYears Float  @default(0)
+  education       String @default("")
+  staleDays       Int    @default(21)
+}
+
+model SyncState {
+  userId       String    @id
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       String    @default("idle")
+  pageToken    String?
+  lastSyncedAt DateTime?
+  requestedAt  DateTime?
+  leaseUntil   DateTime?
+  attempts     Int       @default(0)
+  retryAt      DateTime?
+  error        String?
+}

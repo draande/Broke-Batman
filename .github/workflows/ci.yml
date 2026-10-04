@@ -1,0 +1,30 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: batman
+          POSTGRES_PASSWORD: batman
+          POSTGRES_DB: broke_batman
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U batman" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://batman:batman@localhost:5432/broke_batman?schema=public
+      SESSION_SECRET: ci-only-secret-at-least-32-characters-long
+      APP_URL: http://localhost:3000
+      RUN_DB_TESTS: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate && npm run db:migrate
+      - run: npm run typecheck && npm run lint && npm test && npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
