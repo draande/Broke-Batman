@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import { randomBytes, createHash } from "node:crypto";
-import { db } from "./db";
-import { environment } from "./env";
-import { APIError } from "./errors";
+import { db } from "@/server/db";
+import { environment } from "@/server/env";
+import { APIError } from "@/server/errors";
 export async function currentUser() {
   const token = (await cookies()).get("bat_session")?.value;
   if (!token) return null;

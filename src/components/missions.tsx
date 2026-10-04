@@ -2,9 +2,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { CalendarDays, CircleCheck, ArrowUpRight } from "lucide-react";
-import type { Bootstrap } from "@/lib/types";
-import { api, timeLabel } from "@/lib/client";
-import { Empty } from "./ui";
+import type { Bootstrap } from "@/types/domain";
+import { api, timeLabel, errorMessage } from "@/lib/client";
+import { Empty } from "@/components/ui";
 export function Missions({
   data,
   refresh,
@@ -35,7 +35,7 @@ export function Missions({
       refresh();
       notify(completed ? "Mission complete." : "Mission reopened.");
     } catch (e) {
-      notify((e as Error).message, true);
+      notify(errorMessage(e), true);
     }
   }
   return (
@@ -131,7 +131,10 @@ export function Missions({
               </div>
             ))
           ) : (
-            <Empty title="Clear skies." text="No follow-ups in this view." />
+            <Empty
+              title="No missions tonight."
+              text="No follow-ups in this view. Enjoy it while it lasts."
+            />
           )}
         </section>
         <section className="panel">

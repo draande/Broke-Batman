@@ -6,3 +6,12 @@ node_modules
 .git
 test-results
 playwright-report
+
+coverage
+docs
+tests
+.cache
+.tmp
+*.log
+.vscode
+.idea

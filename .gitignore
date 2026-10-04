@@ -9,3 +9,13 @@ test-results/
 *.tsbuildinfo
 .npm-cache/
 next-env.d.ts
+
+# Local verification, editors and OS files
+*.log
+.cache/
+.tmp/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.bak

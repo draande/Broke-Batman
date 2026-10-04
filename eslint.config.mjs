@@ -12,6 +12,9 @@ export default ts.config(
       ".npm-cache/**",
       "playwright-report/**",
       "test-results/**",
+      ".tmp/**",
+      ".cache/**",
+      "coverage/**",
     ],
   },
   js.configs.recommended,
@@ -32,7 +35,7 @@ export default ts.config(
     languageOptions: { globals: { process: "readonly" } },
   },
   {
-    files: ["scripts/verify-ui.mjs"],
+    files: ["scripts/*.mjs"],
     languageOptions: {
       globals: {
         console: "readonly",

@@ -31,8 +31,10 @@ export function errorResponse(error: unknown) {
   if (error instanceof SyntaxError)
     return Response.json({ error: "Malformed JSON." }, { status: 400 });
   console.error(
-    "Request failed",
-    error instanceof Error ? error.name : "Unknown error",
+    JSON.stringify({
+      event: "request_failed",
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    }),
   );
   return Response.json(
     { error: "The Batcomputer encountered an error. Please try again." },

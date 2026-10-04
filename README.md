@@ -1,87 +1,111 @@
+<img src="public/brand/mark.svg" width="64" alt="Broke Batman original geometric mark" />
+
 # Broke Batman
 
-**Gotham isn't paying the bills.**
+> Gotham isn't paying the bills.
 
-A private job-search command center with a dark, original vigilante-inspired identity. Track opportunities from saved posting to accepted offer, extract job information, schedule interviews and follow-ups, and measure your search using persisted history.
+The Batmobile needs gas. Wayne Manor has property taxes. Alfred would like to see a stable income.
 
-## Why I Built This
+So Batman is applying for software engineering jobs.
 
-Even a masked vigilante needs an income. Broke Batman turns that premise into a practical product demonstrating full-stack engineering, relational data modeling, authorization, secure web extraction, historical analytics, and accessible product design. The humor stays in the margins; the workflow does the work. This independent project uses no official DC artwork, logos, or actor likenesses.
+**Broke Batman** keeps applications, interviews, recruiter emails, and follow-ups in one place. The presentation is a joke. The PostgreSQL transactions, OAuth integration, and hiring analytics are actual engineering.
 
-## Features
+## Why build this?
 
-- Email/password registration, login, revocable sessions, logout, and isolated workspaces.
-- Application CRUD with all 15 stages, salary ranges, job descriptions, dates, sources, skills, and contacts.
-- Paginated cases table with sorting, search across descriptions/notes/contacts/skills, eight filters, bulk archive/restore/delete, and archived-case access.
-- Persistent Kanban drag-and-drop, optimistic rollback, and a keyboard-accessible status selector on every card.
-- Job analysis from copied text or public URLs: structured JobPosting JSON-LD first, normalized text second, editable review, explicit missing-field warnings.
-- Duplicate warnings with existing-case links and an explicit save-anyway choice.
-- Interviews with timezone display, meeting links, preparation notes, outcomes, editing, and removal.
-- Follow-ups with overdue states and complete/reopen actions; application deadlines alongside upcoming missions.
-- Editable personal notes, recruiter/contact records, and an append-only activity/status timeline.
-- Dashboard, historical funnel, eight-week activity, source/company/status/work-mode breakdowns, response/interview/offer rates, response delay, and time between stages.
-- Weekly targets, optional streaks, persistent Daylight Mode, Ctrl/Cmd+K command palette, and highlighted global search.
-- CSV import with field mapping, validation, preview, per-row errors and duplicate handling; CSV export and complete JSON backup export.
-- Private fictional demo workspaces, responsive mobile cards/navigation, accessible dialogs, reduced-motion support, skeletons, errors and notifications.
+A job search quickly becomes a spreadsheet, a calendar, and an inbox that disagree with each other. I wanted a project with more interesting problems than another CRUD dashboard: messy input, uncertain matches, outside services, and automation that needs to know when to stop.
 
 ## Screenshots
 
-Screenshots generated during local visual verification live in `docs/screenshots/`.
+**Mission control**
 
-| View                   | Screenshot                       |
-| ---------------------- | -------------------------------- |
-| Desktop command center | `docs/screenshots/dashboard.png` |
-| Cases                  | `docs/screenshots/cases.png`     |
-| Intelligence           | `docs/screenshots/analytics.png` |
-| Mobile dashboard       | `docs/screenshots/mobile.png`    |
-| Daylight Mode          | `docs/screenshots/daylight.png`  |
+![Dashboard with application metrics and upcoming missions](docs/screenshots/dashboard.png)
 
-## Stack and architecture
+<details>
+<summary>Cases, case details, Bat-Inbox, and Batcomputer Intelligence</summary>
 
-Next.js 16 App Router, React 19, TypeScript, PostgreSQL, Prisma 6, Zod, Radix accessible dialogs, Lucide icons, Recharts, bcrypt, and signed database-backed sessions. Custom CSS provides the visual system and responsive layouts without a large utility/component dependency. Vitest verifies domain logic and database integration; Playwright verifies full browser workflows. Charts load lazily. Public pages render on the server; the authenticated interactive workspace is hydrated after a server-side session check.
+![Searchable applications table](docs/screenshots/cases.png)
+![Application details and case history](docs/screenshots/case-detail.png)
+![Bat-Inbox with evidence and actions awaiting approval](docs/screenshots/bat-inbox.png)
+![Hiring analytics and historical funnel](docs/screenshots/intelligence-expanded.png)
+
+</details>
+
+## What it does
+
+- **Cases:** searchable, filtered tables and Kanban; status history, notes, contacts, duplicate warnings, archive/restore, and bulk actions.
+- **Job postings:** paste text or fetch a public job URL; review extracted requirements, salary, and skills before saving. Local parsing works without an AI key.
+- **Bat-Inbox:** Gmail read-only OAuth, queued sync, classification, evidence-based case matching, and approval of suggested changes. A fictional inbox exercises the same ingestion pipeline.
+- **Missions:** interviews, deadlines, and follow-ups with timezone-aware display and completion controls.
+- **Batcomputer Intelligence:** historical funnel, source conversion, observed response times, weekly comparisons, company signals, activity, and streaks.
+- **Skills:** proficiency profile, normalized aliases, required/preferred skills, and an explained match score. It does not predict hiring outcomes.
+- **Everyday controls:** notifications, Ctrl/Cmd+K search, CSV preview/import/export, JSON backup, and persistent dark/daylight themes.
+
+## The fun stuff
+
+Cases at Wayne Enterprises, LexCorp, and the Daily Planet. A tiny Wayne Manor footer. A familiar ten-key sequence that says “I'm Batman.” Alfred recommends sunlight after a seven-day streak.
+
+The geometric vigilante mark is original. The controls still say what they do.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Browser[React feature screens] --> API[Next.js route handlers]
+  API --> Services[Validation and services]
+  Services --> Prisma[Prisma / PostgreSQL]
+  Gmail[Gmail read-only API] --> Worker[Leased sync worker]
+  Worker --> Suggestions[Classify / match / propose]
+  Suggestions --> Prisma
+  Browser --> Approval[User review]
+  Approval --> API
+```
+
+One Next.js application and one optional mail worker share PostgreSQL. No separate queue infrastructure. [Architecture](docs/ARCHITECTURE.md), [database](docs/DATABASE.md), and [email pipeline](docs/EMAIL_INTELLIGENCE.md) explain the boundaries and tradeoffs.
+
+**Stack:** Next.js 16 App Router, React 19, TypeScript, Prisma, PostgreSQL, Zod, jose, bcrypt, Radix Dialog, Recharts, Lucide, Cheerio, Undici, Vitest, and Playwright.
+
+## Project structure
 
 ```text
-src/app/                    Public pages, authenticated route, API dispatcher
-src/components/             Feature UI and reusable accessible primitives
-src/lib/                    Validation, analytics, duplicates, shared/client types
-src/server/                 Authentication, repository, services, extraction, transfers
-prisma/schema.prisma        Relational schema
-prisma/migrations/          Committed PostgreSQL migration
-prisma/seed.ts              Idempotent demo seeding
-scripts/local-db.ts         Optional portable development PostgreSQL process
-tests/                      Unit, PostgreSQL integration, browser flows
-.github/workflows/ci.yml     Database-backed automated verification
-Dockerfile / compose.yaml   Standalone production app and local PostgreSQL
+src/app/                 Routes, metadata, and global styles
+src/features/            Applications, inbox, and intelligence screens
+src/components/          Shared controls, layout, and smaller screens
+src/server/http/         Authenticated API dispatch
+src/server/services/     Application and suggestion workflows
+src/server/repositories/ Owner-scoped application queries
+src/server/integrations/ Gmail, token encryption, and job fetching
+src/server/jobs/         Gmail queue leasing and retries
+src/server/demo/         Fictional seed data and mail fixtures
+src/lib/                 Pure analytics, matching, and client helpers
+src/schemas/, types/     Validation boundaries and shared domain types
+prisma/                  Schema, migrations, and seed
+tests/                   Unit, PostgreSQL integration, and browser tests
+docs/, scripts/, public/ Technical notes, tooling, and original assets
 ```
 
-### Database architecture
+## Run it locally
 
-`User` owns `Application` and `Session`, with one `UserPreference`. `Status` is a lookup table with a label, ordering and funnel category, so the data model is extensible. Applications reference status and own `ApplicationStatusHistory`, `Activity`, `Interview`, `FollowUp`, `Contact`, and `Note`. Shared normalized `Skill` records connect through `ApplicationSkill` with required/preferred classification. `RateLimit` stores atomic rolling-window counters shared across app processes.
-
-Indexes cover user/archive/creation, user/status, user/applied-date, and child ownership/time queries. User deletion cascades through private records. Application deletion intentionally removes its children; archive preserves them. Shared skills and statuses are retained. Status history and activity are appended on changes, never replaced by case edits.
-
-## Local setup
-
-Requires Node.js **22.12+** (Node 24 also works) and PostgreSQL. Use a UTF-8 database. The embedded runner is an optional development convenience, not a production database.
+Requires **Node 22.12+**, npm, and PostgreSQL. The lockfile is checked in.
 
 ```sh
+git clone https://github.com/draande/Broke-Batman.git
+cd Broke-Batman
 npm ci
-cp .env.example .env
 ```
 
-On PowerShell use `Copy-Item .env.example .env`. Set `SESSION_SECRET` to a random value of at least 32 characters. Generate one using `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep `.env` private.
-
-Start PostgreSQL in a separate terminal:
+Copy `.env.example` to `.env` (`Copy-Item .env.example .env` in PowerShell; `cp .env.example .env` in a Unix shell). Generate a secret and put it in `SESSION_SECRET`:
 
 ```sh
-# Option A: PostgreSQL container
-docker compose up -d db
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
 
-# Option B: workspace-local native PostgreSQL, no Docker required
+Start the development database in another terminal, or point `DATABASE_URL` at your own PostgreSQL:
+
+```sh
 npm run db:local
 ```
 
-The embedded runner binds only `127.0.0.1:5432`, stores data under `.postgres/data`, and uses the development-only `batman` / `batman` credentials. Stop it with Ctrl+C. Do not run it if another database already occupies port 5432. It may need Windows process-launch permission. For this runner, use `127.0.0.1` in `DATABASE_URL` to avoid IPv6 localhost ambiguity.
+Then:
 
 ```sh
 npm run db:generate
@@ -89,148 +113,62 @@ npm run db:migrate
 npm run dev
 ```
 
-Visit **http://localhost:3000**, register, or choose **View Demo → Open a private demo workspace**. A demo creates an isolated user and 24 fictional cases; it is not shared fake frontend state. Existing data is never overwritten by demo creation.
+Open [localhost:3000](http://localhost:3000). Register an account or choose **Open a private demo workspace** on the login page. The local database is persistent; restarting the app does not erase it.
 
-### Environment variables
+<details>
+<summary>Optional seed, production build, and Docker</summary>
 
-| Variable             | Purpose                                                                     |
-| -------------------- | --------------------------------------------------------------------------- |
-| `DATABASE_URL`       | PostgreSQL connection string; use TLS parameters required by your host      |
-| `SESSION_SECRET`     | At least 32 random characters; server-only signing key                      |
-| `APP_URL`            | Canonical browser origin used for mutation origin checks                    |
-| `DEMO_ENABLED`       | Set `true` to explicitly allow public demo workspace creation in production |
-| `DEMO_PASSWORD`      | Password of at least 12 characters used by the explicit seed command        |
-| `EXTRACTION_API_URL` | Optional trusted OpenAI-compatible chat-completions endpoint                |
-| `EXTRACTION_API_KEY` | Optional server-only provider key                                           |
-| `EXTRACTION_MODEL`   | Optional provider model name                                                |
-| `RUN_DB_TESTS`       | `true` to include integration tests against the configured database         |
+Set a unique `DEMO_PASSWORD` in `.env`, then `npm run db:seed` creates `bruce@demo.example` with fictional cases. It preserves existing cases. `db:reset` is destructive and is not part of normal setup.
 
-The first three variables are validated server-side when authentication runs. Optional AI variables must all be supplied to enable the provider. The app works without them. Use a provider you trust; job-description text is transmitted only when you configure this integration. Google OAuth and password recovery are not included; authentication uses email/password.
+For production: set the public `APP_URL` before `npm run build` so static social metadata uses the right origin, then `npm start`. Set `DEMO_ENABLED=true` only if you want public demo workspace creation. A public deployment needs HTTPS and its own secrets/database.
 
-### Demo seed and development reset
+`docker compose up -d db` runs PostgreSQL from [compose.yaml](compose.yaml). The optional `web` service builds the standalone app. Compose does not start a mail worker; run it separately. Docker packaging has not been executed in the current local environment.
 
-```sh
-# Set a password in your shell first; do not commit it.
-# PowerShell: $env:DEMO_PASSWORD='your-chosen-strong-password'
-# Bash: export DEMO_PASSWORD='your-chosen-strong-password'
-npm run db:seed
-```
+</details>
 
-The seed command creates `bruce@demo.example` and 24 fictional applications across many stages. It preserves existing user data and does not change an existing demo password. The public demo button creates a separate account each time, so no password is needed to explore locally.
+## Environment and demo inbox
 
-```sh
-# DESTRUCTIVE: development database only. Prisma asks for confirmation.
-npm run db:reset
-# Set DEMO_PASSWORD before reset if you want its automatic seed to run.
-```
+| Variables                                                      | Needed for                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| `DATABASE_URL`, `SESSION_SECRET`, `APP_URL`                    | Core app; secret must be at least 32 characters         |
+| `DEMO_ENABLED`, `DEMO_PASSWORD`                                | Production demo opt-in; optional seeded login           |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GMAIL_TOKEN_KEY`  | Real Gmail only; independent 32-byte hex encryption key |
+| `EXTRACTION_API_URL`, `EXTRACTION_API_KEY`, `EXTRACTION_MODEL` | Optional job-posting extraction provider                |
 
-For a new schema change, run `npx prisma migrate dev --name descriptive_change`, review the SQL, commit the migration, and use `npm run db:migrate` on deployments.
+No Google credentials are needed for the fictional inbox. Start `npm run mail:worker -- --demo-only`, then open **Preferences → Batcomputer Integrations → Try fictional inbox demo**. Review suggestions in Bat-Inbox. Connecting does not automatically change case status.
+
+For real Gmail setup, scopes, privacy, and worker operation, see [Email Intelligence](docs/EMAIL_INTELLIGENCE.md). Actual Google consent and mailbox access require your own credentials and have not been verified live.
 
 ## Testing
 
 ```sh
 npm run typecheck
 npm run lint
-npm test
-# PowerShell: $env:RUN_DB_TESTS='true'; npm test
-# Bash: RUN_DB_TESTS=true npm test
+npm run test:unit
+npm run test:integration
+npm run build
 npx playwright install chromium
 npm run test:e2e
-npm run build
-npm audit
 ```
 
-Unit tests cover validation, analytics denominators/historical reach, extraction normalization and structured data, private-address rejection, duplicates, ownership predicates and CSV mapping. Integration tests create two temporary users, verify CRUD/status history/skill retention/interview persistence/ownership/cascades, then remove their test data. They skip unless `RUN_DB_TESTS=true`; a missing database fails rather than masquerading as a passing integration check.
+Integration tests need migrated PostgreSQL and create disposable test users. `npm test` runs unit tests, with database tests enabled by `RUN_DB_TESTS=true`. Browser tests start the app and a **demo-only** worker; when reusing a running app, start that worker yourself. CI tests the production build. `npm run screenshots` refreshes the intentional README gallery against a running app and demo worker.
 
-The browser suite registers and logs in, analyzes pasted text, persists a case, changes status, schedules an interview and follow-up, tests cross-user object isolation and CSRF rejection, inspects analytics, exports CSV/JSON, searches via the command palette, toggles theme, imports a CSV, moves a Kanban case, checks blocked URL extraction, and verifies mobile width and logout. Browser accounts are fixture data; use a dedicated test database in CI. CI provisions PostgreSQL and executes all checks.
+See [verification](docs/verification.md) for results and limits, and [contributing](docs/CONTRIBUTING.md) for the practical workflow.
 
-## API
+## Security
 
-All private routes derive user identity from the validated session cookie. Supplying a user ID in JSON never selects an owner. JSON mutations require an `Origin` header exactly matching `APP_URL`. Responses use 401 (session), 403 (origin), 404 (missing/other-owner object), 409 (duplicates), 422 (validation/extraction), 429 (rate limit), and 413 (payload limits).
+Server-side ownership checks, signed revocable sessions, mutation-origin checks, input validation, bounded requests, encrypted OAuth tokens, and public-address validation for fetched job URLs. Gmail gets a read-only scope; stored excerpts still contain private information. [Security](docs/SECURITY.md) describes protections and deployment responsibilities.
 
-| Routes                                             | Methods                                          |
-| -------------------------------------------------- | ------------------------------------------------ |
-| `/api/auth/register`, `/login`, `/demo`, `/logout` | POST (each under `/api/auth/`)                   |
-| `/api/bootstrap`, `/api/analytics`                 | GET                                              |
-| `/api/applications`                                | GET paginated/filterable, POST                   |
-| `/api/applications/:id`                            | GET, PUT full case, PATCH status/archive, DELETE |
-| `/api/applications/bulk`                           | POST archive/restore/delete up to 100 IDs        |
-| `/api/applications/:id/interviews`                 | POST; `/:recordId` PUT/DELETE                    |
-| `/api/applications/:id/follow-ups`                 | POST; `/:recordId` PUT complete/reopen, DELETE   |
-| `/api/applications/:id/contacts`, `/notes`         | POST; `/:recordId` PUT/DELETE                    |
-| `/api/extract`                                     | POST `{url}` or `{text}`                         |
-| `/api/preferences`                                 | PUT                                              |
-| `/api/import`                                      | POST `{csv,mapping,commit,allowDuplicate}`       |
-| `/api/export?format=csv\|json`                     | GET attachment                                   |
+## What I learned
 
-Application list parameters: `q`, `page`, `pageSize` (maximum 100), `sort` (`company`, `position`, `createdAt`, `dateApplied`, `updatedAt`), `direction`, `statusId`, `company`, `location`, `workMode`, `employmentType`, `source`, `from`, `to`, `archived` (`false`, `true`, or `all`).
+Automation is most useful when its uncertainty is visible. An ambiguous recruiter email should become a review item, not quietly change an application. Transactions matter when two clicks or workers see the same item. Analytics need honest denominators: pending applications are not completed response-time observations, and a chart should admit when the sample is too small.
 
-### Imports and backups
+## Future ideas
 
-CSV requires company and position, with defaults for other fields. Column names can be mapped interactively; use an exported CSV as a template. Dates accept ISO timestamps or YYYY-MM-DD, skills use semicolons, and status fields use database IDs. All rows are validated before committing; rows then save independently. Duplicates and failed rows appear in the import report. Retry only failed rows to avoid repeated imports. Spreadsheet formula-like cells in exports receive a leading apostrophe, so exported text remains safe when opened in spreadsheets.
+Calendar export for interviews, stronger email matching evaluation against consented fixtures, and clearer retention controls for old recruiter metadata.
 
-JSON is a **complete export**, including nested history and records. There is no JSON restore UI; CSV provides portable case import, while a database backup restores everything exactly. Preserve PostgreSQL backups in addition to exports.
+## Disclaimer and license
 
-### Extraction behavior
+An independent portfolio project inspired by Batman/DC themes. Not affiliated with or endorsed by DC Comics or Warner Bros. No official Batman artwork or branding is used. Seed companies and demo inbox messages are fictional examples.
 
-Public HTTP(S) URLs on ports 80/443 are allowed. Credentials in URLs, private/reserved IPv4 and IPv6 addresses, internal hostnames and redirects to private networks are rejected. Every connection pins a validated DNS address to prevent rebinding. Redirects, page bytes and request duration are bounded. JSON-LD is preferred; script/navigation/form boilerplate is removed. Content is rendered as escaped text, never injected HTML. Sites requiring JavaScript, cookies or anti-bot clearance may not be readable; the user receives a paste-text fallback. The heuristics are deliberately conservative: missing fields are identified, and every result requires review. Optional AI output is schema-validated, with transparent fallback on failure.
-
-### Analytics definitions
-
-Rates use cases with a `dateApplied`. Responses mean a recorded stage beyond Saved/Preparing/Applied, excluding Withdrawn and Ghosted. Interview and offer reach uses status history, so later rejection does not erase an interview. Response delay measures the first qualifying event after submission. Stage averages use time between preserved status events. “This week” and the target use a rolling seven-day window. Streak dates use the saved display timezone, with yesterday allowed as the current streak endpoint. Archived cases are excluded from dashboard analytics, retained in exports and searchable via archive filters.
-
-## Docker and deployment
-
-```sh
-# Create .env with a strong SESSION_SECRET and APP_URL.
-docker compose up -d db
-# Run migrations from the host against the mapped database before starting web.
-npm run db:generate
-npm run db:migrate
-docker compose up --build -d web
-```
-
-The multi-stage Dockerfile produces Next's standalone server, runs as a non-root user, and includes static assets. Docker is configured but was unavailable on the original Windows development machine, so its image build is not part of local verification. The optional native database runner is for development only.
-
-For a managed deployment: provision PostgreSQL, set the environment variables, run `npm ci`, `npm run db:generate`, `npm run db:migrate`, and `npm run build`, then run `npm start` or deploy the standalone container. Use HTTPS in production (secure cookies require it), a strong database password, connection pooling appropriate to your host, database backups, and a reverse proxy request-size cap. Keep migrations in a release job using the same code version. Do not expose PostgreSQL to the public internet. Public demos are disabled by default; enable them intentionally and schedule demo cleanup.
-
-## Security considerations and operational boundaries
-
-- Bcrypt hashes passwords; signed sessions have random IDs, expire after seven days, and are checked in PostgreSQL on every authenticated request. Logout revokes the database session.
-- Cookies are HttpOnly, SameSite=Lax, and Secure in production. Mutation origin validation prevents cross-site writes. No user-supplied owner ID is trusted.
-- Prisma parameterizes queries. Resource and child mutations scope ownership on the server. Input schemas strip unrecognized fields. Case descriptions, notes and search highlights render through React text escaping.
-- JSON bodies stream through a 1 MB bound; CSV is limited to 500 rows. URL fetching checks DNS, redirects and byte/time limits. No internal crawler bypass is provided for development.
-- Security headers restrict framing, content types, origins and browser capabilities. Inline scripts/styles are permitted for framework hydration; a nonce-based CSP is a future hardening option. Unsafe eval is enabled only in development.
-- Authentication, demo creation, extraction, and imports use database-backed rate limits. Configure additional edge/IP rate limiting for an internet deployment. Do not trust arbitrary forwarding headers as client identity.
-- Database and provider credentials stay on the server. `.env`, native DB data, caches, and generated test output are ignored by source control.
-- Schedule deletion of expired Session/RateLimit records and old anonymous demo users according to your retention policy. Deleting a demo User cascades its private records. Monitor database/storage growth and error rates.
-- No outbound reminders/email, calendar sync, OAuth, or password-reset service is configured. Missions are visible in-app; meeting/mailto links open the user's chosen client.
-
-## Future improvements
-
-Optional OAuth and verified-email account recovery, calendar/notification integrations, user-defined stage editor, JSON restore with conflict handling, richer extraction fixtures for additional ATS providers, database aggregation for very large searches, full-text search indexes, narrower CSP with nonces, and user-controlled data retention.
-
-See `docs/verification.md` for the checks performed on the local implementation.
-
-## Batcomputer integrations and intelligence
-
-This upgrade extends the existing case workflow. Gmail is optional and read-only. No code path sends mail or modifies messages. All detected status, interview, contact, and assessment changes remain pending until the owner approves them. Ambiguous matches require choosing a case. Approvals are atomic, ownership-scoped and recorded in the timeline with email evidence and confidence. Dismissals are retained as audit decisions.
-
-### Google setup
-1. Enable Gmail API in a Google Cloud project and create a Web Application OAuth client.
-2. Register the exact redirect URI: `http://localhost:3000/api/gmail/oauth/callback` for local development (use your HTTPS APP_URL in production).
-3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GMAIL_TOKEN_KEY` in the private `.env`. Generate the encryption key with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Keep the key stable and back it up separately from the database.
-4. Configure the Google consent screen/test users. The only requested scope is `https://www.googleapis.com/auth/gmail.readonly`; Google's publication requirements apply to that restricted scope.
-5. Start the app and run `npm run mail:worker` in a separate terminal. Queue sync from Settings or Bat-Inbox. The database-backed queue processes 25 messages per page, checkpoints pagination, leases jobs, and retries temporary failures with bounded backoff. Production can run the same worker as a separate supervised process; the request handlers only enqueue jobs.
-
-For credential-free testing: run `npm run mail:worker -- --demo-only`, then choose **Try fictional inbox demo** in Settings. This enforced mode cannot access Google. Five fictional messages demonstrate Google interviews, Stripe rejection, NVIDIA recruiting, Wayne Enterprises confirmation, and Cyberdyne assessments. Link messages to existing cases where automatic matching is uncertain. Demo messages are marked clearly and do not claim to be real mail.
-
-The sync query examines job-search phrases from the last 90 days. The deterministic classifier discards unknown/unrelated messages. Stored data is limited to sender, subject, IDs, received/detected dates, a 240-character text excerpt, matching evidence and suggestions/decisions. Bodies are processed temporarily and HTML is converted to plain text; attachments are not imported. No email content is sent to an LLM. There is no mailbox mirror. Read the original in Gmail when reviewing a real message.
-
-Tokens use AES-256-GCM authenticated encryption. OAuth attempts use random state, an encrypted PKCE verifier, a ten-minute expiry and one-time consumption bound to the signed-in owner. Redirect URLs are derived from configured APP_URL. Provider errors are mapped to safe messages without logging response bodies or tokens. Disconnect revokes the refresh token before clearing local credentials. Privacy controls can remove imported metadata and Gmail activity, or all job-search records, while retaining the login account. JSON export includes profile, preferences, inbox metadata, decisions and notifications, but excludes OAuth credentials and sessions.
-
-Skills support canonical aliases and Learning/Familiar/Proficient/Strong proficiency. Case match scores show the 70/20/10 skill/experience/education breakdown and exclude unknown requirements. They describe a profile-to-posting comparison, never hiring probability. Health and attention ranking are derived from case age, recorded responses, upcoming interviews and pending reviews; stale days are configurable in Skills. Intelligence includes observed source conversion, censored response timings, a 365-day activity grid, historical stage reach, weekly comparisons and company records. Company response averages require three observed responses.
-
-Protocol references: [Google OAuth web-server flow](https://developers.google.com/identity/protocols/oauth2/web-server), [Google OAuth security practices](https://developers.google.com/identity/protocols/oauth2/resources/best-practices), [Gmail message listing](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list).
-
-On this Windows machine the global npm launcher is missing a dependency. The running app uses direct Node entry points. If the npm launcher fails, start the worker with `node node_modules/tsx/dist/cli.mjs scripts/mail-worker.ts` (append `--demo-only` for fictional-only processing), and start the built app with `node scripts/start.mjs`. To invoke other package scripts, use `node "C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js" run <script>`.
+This repository currently has **no license grant**. No `LICENSE` file existed, and this cleanup does not assign one on the owner's behalf.

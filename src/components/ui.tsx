@@ -1,8 +1,9 @@
 "use client";
+import { brand } from "@/lib/brand";
 import * as Dialog from "@radix-ui/react-dialog";
 import { cloneElement, isValidElement, useId } from "react";
 import { X, Radar } from "lucide-react";
-import type { Status } from "@/lib/types";
+import type { Status } from "@/types/domain";
 export function Mark({ size = 34 }: { size?: number }) {
   return (
     <svg
@@ -12,10 +13,7 @@ export function Mark({ size = 34 }: { size?: number }) {
       fill="none"
       aria-hidden="true"
     >
-      <path
-        d="M4 12L15 18L20 8L24 15L28 8L33 18L44 12L38 30L28 32L24 40L20 32L10 30Z"
-        fill="currentColor"
-      />
+      <path d={brand.markPath} fill="currentColor" />
       <path d="M16 23L22 25M26 25L32 23" stroke="var(--bg)" strokeWidth="2.5" />
     </svg>
   );

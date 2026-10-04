@@ -115,12 +115,12 @@ test("fictional Gmail sync, review, interview, skills, notifications, analytics 
     ),
   ).toBe(true);
   await page.screenshot({
-    path: "docs/screenshots/bat-inbox-mobile.png",
+    path: "test-results/visual/bat-inbox-mobile.png",
     fullPage: true,
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({
-    path: "docs/screenshots/bat-inbox.png",
+    path: "test-results/visual/bat-inbox.png",
     fullPage: true,
   });
   await page.goto("/app/skills");
@@ -128,7 +128,7 @@ test("fictional Gmail sync, review, interview, skills, notifications, analytics 
     page.getByRole("heading", { name: "Skills profile", exact: true }),
   ).toBeVisible();
   await page.screenshot({
-    path: "docs/screenshots/skills-profile.png",
+    path: "test-results/visual/skills-profile.png",
     fullPage: true,
   });
   await page.goto("/app/analytics");
@@ -136,7 +136,7 @@ test("fictional Gmail sync, review, interview, skills, notifications, analytics 
     page.getByRole("heading", { name: "Patrol activity", exact: true }),
   ).toBeVisible();
   await page.screenshot({
-    path: "docs/screenshots/intelligence-expanded.png",
+    path: "test-results/visual/intelligence-expanded.png",
     fullPage: true,
   });
   await page.goto("/app/settings");
@@ -148,7 +148,7 @@ test("fictional Gmail sync, review, interview, skills, notifications, analytics 
   await page.goto("/app/inbox");
   await expect(page.locator(".mail-card")).toHaveCount(4);
   await page.screenshot({
-    path: "docs/screenshots/bat-inbox-daylight.png",
+    path: "test-results/visual/bat-inbox-daylight.png",
     fullPage: true,
   });
   await page.goto("/app/settings");

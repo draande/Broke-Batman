@@ -9,8 +9,8 @@ process.on("SIGTERM", () => {
   stopped = true;
 });
 async function work() {
-  const { db } = await import("../src/server/db");
-  const { runSyncJob } = await import("../src/server/gmail");
+  const { db } = await import("@/server/db");
+  const { runSyncJob } = await import("@/server/jobs/gmail-sync");
   while (!stopped) {
     const jobs = await db.syncState.findMany({
       where: {

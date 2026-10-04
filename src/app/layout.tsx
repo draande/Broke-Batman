@@ -1,9 +1,27 @@
+import { brand } from "@/lib/brand";
 import type { Metadata } from "next";
-import "./globals.css";
+import "@/app/globals.css";
 export const metadata: Metadata = {
-  title: "Broke Batman · Job search command center",
-  description:
-    "Gotham isn't paying the bills. A job application command center.",
+  metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
+  title: {
+    default: "Broke Batman | Job Application Tracker",
+    template: "%s | Broke Batman",
+  },
+  description: brand.description,
+  applicationName: brand.name,
+  icons: { icon: "/brand/mark.svg", apple: "/brand/mark.svg" },
+  openGraph: {
+    type: "website",
+    siteName: brand.name,
+    title: brand.name,
+    description: brand.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: brand.name,
+    description: brand.description,
+    images: ["/opengraph-image"],
+  },
 };
 export default function RootLayout({
   children,

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
-import { seedDemo, ensureStatuses } from "../src/server/seed";
+import { seedDemo, ensureStatuses } from "@/server/demo/seed";
 const db = new PrismaClient();
 async function main() {
   await ensureStatuses(db);

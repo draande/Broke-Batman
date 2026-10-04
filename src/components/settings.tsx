@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import type { Bootstrap } from "@/lib/types";
-import { api } from "@/lib/client";
-import { Field } from "./ui";
-import { Integrations } from "./integrations";
+import type { Bootstrap } from "@/types/domain";
+import { api, errorMessage } from "@/lib/client";
+import { Field } from "@/components/ui";
+import { Integrations } from "@/features/inbox/components/integrations";
 export function Settings({
   data,
   refresh,
@@ -32,7 +32,7 @@ export function Settings({
       refresh();
       notify("Preferences saved.");
     } catch (error) {
-      notify((error as Error).message, true);
+      notify(errorMessage(error), true);
     } finally {
       setBusy(false);
     }

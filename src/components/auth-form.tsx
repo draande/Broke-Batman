@@ -2,8 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, LoaderCircle } from "lucide-react";
-import { api } from "@/lib/client";
-import { Field, Mark } from "./ui";
+import { api, errorMessage } from "@/lib/client";
+import { Field, Mark } from "@/components/ui";
 export function AuthForm({ register = false }: { register?: boolean }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -16,7 +16,7 @@ export function AuthForm({ register = false }: { register?: boolean }) {
       await api(`auth/${register ? "register" : "login"}`, "POST", data);
       window.location.assign("/app");
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
       setBusy(false);
     }
   }
@@ -27,7 +27,7 @@ export function AuthForm({ register = false }: { register?: boolean }) {
       await api("auth/demo", "POST");
       window.location.assign("/app");
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
       setBusy(false);
     }
   }

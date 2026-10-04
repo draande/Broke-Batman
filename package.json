@@ -16,7 +16,12 @@
     "db:reset": "prisma migrate reset",
     "db:local": "tsx scripts/local-db.ts",
     "mail:worker": "tsx scripts/mail-worker.ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "node scripts/test-integration.mjs",
+    "screenshots": "node scripts/capture-screenshots.mjs",
+    "format:check": "prettier --check .",
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -58,5 +63,8 @@
   "overrides": {
     "postcss": "^8.5.23",
     "deepmerge-ts": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

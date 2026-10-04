@@ -1,45 +1,46 @@
-# Local verification
+# Verification
 
-Verified on Windows with Node 24, native PostgreSQL 18 (UTF-8, bound to IPv4 loopback), and Chromium. Database migrations and seed commands ran against real PostgreSQL. The database and application are available locally; no external deployment was performed.
+Portfolio cleanup verified locally on **2026-10-03**, using Windows, Node 24, PostgreSQL 18, and Chromium. Existing data and migrations were preserved; no external deployment was performed.
 
-| Check                                           | Result                                                      |
-| ----------------------------------------------- | ----------------------------------------------------------- |
-| Dependency installation                         | Passed; lockfile committed to the workspace                 |
-| Dependency advisory audit                       | Zero known vulnerabilities after updating affected packages |
-| Prisma client generation                        | Passed                                                      |
-| Initial SQL migration generation and deployment | Passed                                                      |
-| Fictional demo database seed                    | Passed                                                      |
-| TypeScript checking                             | Passed                                                      |
-| ESLint                                          | Passed                                                      |
-| Unit + PostgreSQL integration tests             | 35 passed, including Gmail, OAuth, ownership and persistence              |
-| Production build                                | Passed with Next.js 16.3.8 / webpack                        |
-| Production browser tests                        | 3 suites passed on the final production build                                    |
-| Standalone server smoke and visual verification | Passed                                                      |
-| Desktop, mobile and Daylight Mode screenshots   | Captured and inspected                                      |
-| Browser exceptions during visual verification   | None                                                        |
-| Mobile document overflow at 390px               | None                                                        |
-| Docker image / compose execution                | Not run; Docker is not installed on this machine            |
-| Optional external AI extraction provider        | Not run; no provider credentials configured                 |
+| Check                                    | Result                                                                                                   |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Clean lockfile installation (`npm ci`)   | Passed; 457 packages installed                                                                           |
+| Installation advisory audit              | Zero reported vulnerabilities at verification time                                                       |
+| Prisma generation / migration deployment | Passed; both existing migrations present, no pending migrations                                          |
+| Explicit TypeScript and ESLint           | Passed                                                                                                   |
+| Prettier check                           | Passed                                                                                                   |
+| Vitest unit + PostgreSQL integration     | 40 tests passed across six files (29 unit, 11 integration)                                               |
+| Cross-platform integration command       | Passed against real PostgreSQL                                                                           |
+| Production build                         | Passed; standalone app and original social image generated                                               |
+| Production Chromium workflows            | Four suites passed                                                                                       |
+| Mobile screens                           | Nine main routes tested at 390px in both themes, no document overflow                                    |
+| Keyboard and accessibility checks        | Ctrl+K, dialog focus containment/Escape, typing-safe Easter egg, reduced motion, primary-button contrast |
+| Intentional gallery                      | Nine refreshed screenshots; obsolete duplicates removed                                                  |
+| Local documentation links/images         | Checked with `npm run docs:check`                                                                        |
+| GitHub clone URL                         | Configured remote resolves through `git ls-remote origin HEAD`                                           |
+| Credential-pattern scan                  | No findings in tracked/new source/config/docs; private `.env` is ignored                                 |
 
-The browser suites verified registration/login/logout, manual creation, extraction of pasted descriptions, review/save, persistence after refresh, editing, status history, interviews, follow-ups, completion/reopening controls, notes, contacts, historical analytics, CSV import and exports, JSON backup contents, global search, keyboard command palette, theme persistence, Kanban status persistence and failure rollback, duplicates/save-anyway, archive/restore/delete, and mobile navigation. A second user was denied access to another user's case; a hostile Origin was rejected; private-network URL extraction returned a clear validation error.
+## Coverage
 
-Unit tests cover both raw-text and JSON-LD extraction, invalid input and malicious links, private/reserved addresses including mapped IPv6, duplicate normalization, CSV column mapping, historical analytics, zero-denominator rates and daylight-saving calendar-day streaks. Database tests verify transactional status history, preservation of skills and notes, interview persistence, owner constraints, and child deletion cascades.
+Browser workflows exercise authentication, manual/pasted-posting creation, persistence, editing, status history, interviews, contacts, notes, follow-ups, duplicates/save-anyway, archive/restore/delete, Kanban updates and failure rollback, CSV import/export, JSON backup, command search, theme persistence, and ownership/origin/SSRF rejection.
 
-Visual artifacts are in `docs/screenshots/`. URL extraction on arbitrary third-party career sites is inherently subject to their availability, markup and scraping restrictions. Public live sites were not used as test dependencies; the fetch pipeline and failure boundary are validated locally, and the user is directed to paste text when fetching fails.
+The fictional Gmail workflow tests connection, queued worker sync, matching evidence, explicit status approval, interview confirmation, dismissal, skills, company analytics, notifications, mobile/daylight rendering, and disconnect. Provider integration tests mock Google exchanges, refresh/revocation errors, pagination, and lease/idempotency behavior. Tests also cover privacy-deletion races and competing suggestion review.
 
-Earlier development runs exposed and corrected preferred-skill extraction, malformed URL handling, status updates passing notes into the wrong schema, decorative link names, navigation remounting open forms, date/streak behavior, crowded chart labels, and independent Kanban rollback. The final browser runs used the optimized production server to eliminate development compiler/hot-reload timing from the tests.
+New cleanup tests validate malformed provider JSON, damaged/null suggestion payloads, duplicate error details, field errors, offline and non-JSON failures, metadata/favicon/social image, keyboard behavior, mobile layout, and button contrast. Ordinary browser artifacts are ignored; only the deliberately captured portfolio gallery belongs in Git.
 
+The final presentation check also covers mobile case details, horizontally scrolling Kanban, and edit-dialog bounds in both themes. The refreshed nine-image gallery totals about 1 MB.
 
-## Gmail and intelligence upgrade verification
+## Local installation notes
 
-The additive `202610030002_intelligence` migration and updated Prisma client were generated and deployed successfully without resetting the database. The final production build, explicit TypeScript check, and ESLint passed.
+The first clean-install attempts encountered Windows locks from the running embedded PostgreSQL/native helpers. After stopping those local processes, installation succeeded and PostgreSQL restarted with its existing data. Engine download on this machine required Node's system certificate trust (`NODE_USE_SYSTEM_CA=1`).
 
-All 35 unit and PostgreSQL tests passed. Added coverage includes deterministic classification, ambiguous/strong matching evidence, interview timestamps with milliseconds and conservative missing-date handling, aliases and match-score arithmetic, authenticated token encryption and tamper rejection, provider quota/revocation errors, one-time owner-bound OAuth state/PKCE and mocked callback exchange, invalid callback redirects, transactional approval/replay rejection, audit evidence, contact deduplication, dismissed decisions, queue leasing/idempotency, mocked Gmail pagination and checkpoints, unrelated-mail filtering, censored timings, persistent notification deduplication/ownership, and preventing ingestion after privacy deletion.
+Browser tests use one worker for predictable local resource usage and a supervisor that starts production plus a demo-only mail worker. An initial parallel run stalled during static-resource loading; sequential runs passed. The tests caught and corrected a duplicate-error parsing regression. Visual review found insufficient daylight primary-button contrast; labels now use white and the browser test checks both themes.
 
-All three browser suites passed on the final production build. The two existing case-management/regression suites passed together; the new Gmail suite passed separately after correcting an assertion to match the existing Missions label. The Gmail suite verifies fictional connection and background sync, confidence display, explicit status approval, confirmed interview creation, dismissal, skills aliases and persistence, analytics, notification read controls, company intelligence, mobile layout, Daylight Mode and disconnect. It collected no browser exceptions and no document overflow at 390px.
+## Limits
 
-Screenshots inspected: `bat-inbox.png`, `bat-inbox-mobile.png`, `bat-inbox-daylight.png`, `skills-profile.png`, and `intelligence-expanded.png`. Existing desktop/mobile/theme screenshots remain available alongside them.
-
-The local background worker runs with enforced `--demo-only` filtering. Real OAuth and Gmail endpoints were exercised with mocked responses in tests; no real account was connected and no private mailbox was accessed. Live Google consent, restricted-scope publication approval, and end-to-end Gmail service access require deployment-specific credentials and are not claimed as verified. Docker remains untested because Docker is unavailable locally.
-
-Browser testing exposed and corrected sidebar controls below the viewport, worker environment initialization, and fractional-second timestamp parsing. The sync ingestion transaction now locks the connection row so disconnect/deletion cannot race with an in-flight message and recreate removed metadata. Diagnostics log error classes rather than private request values. Duplicate review links preserve the unsaved form by opening the existing case separately.
+- Real Google consent, live mailbox access, and restricted-scope publication approval need deployment-specific credentials and are not claimed as verified. No private mailbox was accessed.
+- The optional extraction provider is not tested live; local text/JSON-LD parsing and failure handling are tested.
+- Docker is unavailable on this machine; image/compose execution remains unverified. Compose does not include a worker service.
+- Arbitrary third-party job sites can block fetching or change markup. Live sites are not test dependencies; pasting a posting is the fallback.
+- The credential scan is heuristic, not a guarantee. The repository currently has no license grant.
+- CI configuration was exercised through its local production supervisor path; a hosted GitHub Actions run has not been observed during this cleanup.

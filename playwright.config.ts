@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: false,
+  workers: 1,
   timeout: 180000,
   expect: { timeout: 60000 },
   use: {
@@ -11,9 +12,9 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "node node_modules/next/dist/bin/next dev --webpack",
+    command: "node scripts/e2e-server.mjs",
     url: process.env.APP_URL || "http://localhost:3000",
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
 });

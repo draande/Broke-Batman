@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Download, Upload, FileText, CheckCircle2 } from "lucide-react";
-import { api } from "@/lib/client";
-import { Field } from "./ui";
+import { api, errorMessage } from "@/lib/client";
+import { Field } from "@/components/ui";
 const fields = [
   "company",
   "position",
@@ -57,7 +57,7 @@ export function Transfers({
         await api<Preview>("import", "POST", { csv: input, mapping: map }),
       );
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -91,7 +91,7 @@ export function Transfers({
       setPreview(null);
       setCSV("");
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }

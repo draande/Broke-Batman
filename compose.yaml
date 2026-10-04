@@ -15,7 +15,10 @@ services:
       timeout: 5s
       retries: 10
   web:
-    build: .
+    build:
+      context: .
+      args:
+        APP_URL: ${APP_URL:-http://localhost:3000}
     ports:
       - "3000:3000"
     environment:
@@ -23,6 +26,12 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
       APP_URL: ${APP_URL:-http://localhost:3000}
       DEMO_ENABLED: ${DEMO_ENABLED:-false}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GMAIL_TOKEN_KEY: ${GMAIL_TOKEN_KEY:-}
+      EXTRACTION_API_URL: ${EXTRACTION_API_URL:-}
+      EXTRACTION_API_KEY: ${EXTRACTION_API_KEY:-}
+      EXTRACTION_MODEL: ${EXTRACTION_MODEL:-}
     depends_on:
       db:
         condition: service_healthy

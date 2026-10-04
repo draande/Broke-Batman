@@ -191,6 +191,9 @@ small {
 .button.secondary:hover {
   background: var(--hover);
 }
+:root[data-theme="light"] .button:not(.secondary):not(.danger-button) {
+  color: #fff;
+}
 .button.small {
   min-height: 32px;
   padding: 6px 10px;
@@ -2689,4 +2692,81 @@ mark {
 .intelligence-case,
 .notice {
   overflow-wrap: anywhere;
+}
+
+/* Keep long mail subjects from stretching the action button. */
+.mail-heading {
+  align-items: flex-start;
+}
+.mail-heading > div {
+  min-width: 0;
+}
+.mail-heading > .button {
+  flex-shrink: 0;
+}
+.button,
+.icon-button,
+.intelligence-case {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease;
+}
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.overlay {
+  animation: veil-in 140ms ease;
+}
+.modal,
+.toast {
+  animation: panel-in 160ms ease;
+}
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 700px) {
+  .button,
+  .icon-button,
+  input:not([type="checkbox"]):not([type="radio"]),
+  select {
+    min-height: 44px;
+  }
+  .mail-heading {
+    align-items: stretch;
+  }
+  .app-footer {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .page-heading h1,
+  .mail-card h2,
+  .kanban-card h3 {
+    overflow-wrap: anywhere;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

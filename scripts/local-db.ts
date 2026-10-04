@@ -36,6 +36,11 @@ async function main() {
   process.on("SIGTERM", stop);
 }
 main().catch((error) => {
-  console.error(error);
+  console.error(
+    JSON.stringify({
+      event: "local_database_failed",
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    }),
+  );
   process.exit(1);
 });
