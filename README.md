@@ -2,17 +2,9 @@
 
 # Broke Batman
 
-> Gotham isn't paying the bills.
-
-The Batmobile needs gas. Wayne Manor has property taxes. Alfred would like to see a stable income.
-
-So Batman is applying for software engineering jobs.
-
 **Broke Batman** keeps applications, interviews, recruiter emails, and follow-ups in one place. The presentation is a joke. The PostgreSQL transactions, OAuth integration, and hiring analytics are actual engineering.
 
-## Why build this?
-
-A job search quickly becomes a spreadsheet, a calendar, and an inbox that disagree with each other. I wanted a project with more interesting problems than another CRUD dashboard: messy input, uncertain matches, outside services, and automation that needs to know when to stop.
+I wanted a project with more interesting problems than another CRUD dashboard: messy input, uncertain matches, outside services, and automation that needs to know when to stop.
 
 ## Screenshots
 
@@ -159,16 +151,4 @@ See [verification](docs/verification.md) for results and limits, and [contributi
 
 Server-side ownership checks, signed revocable sessions, mutation-origin checks, input validation, bounded requests, encrypted OAuth tokens, and public-address validation for fetched job URLs. Gmail gets a read-only scope; stored excerpts still contain private information. [Security](docs/SECURITY.md) describes protections and deployment responsibilities.
 
-## What I learned
-
-Automation is most useful when its uncertainty is visible. An ambiguous recruiter email should become a review item, not quietly change an application. Transactions matter when two clicks or workers see the same item. Analytics need honest denominators: pending applications are not completed response-time observations, and a chart should admit when the sample is too small.
-
-## Future ideas
-
-Calendar export for interviews, stronger email matching evaluation against consented fixtures, and clearer retention controls for old recruiter metadata.
-
-## Disclaimer and license
-
-An independent portfolio project inspired by Batman/DC themes. Not affiliated with or endorsed by DC Comics or Warner Bros. No official Batman artwork or branding is used. Seed companies and demo inbox messages are fictional examples.
-
-This repository currently has **no license grant**. No `LICENSE` file existed, and this cleanup does not assign one on the owner's behalf.
+## Not affiliated with or endorsed by DC Comics or Warner Bros.
